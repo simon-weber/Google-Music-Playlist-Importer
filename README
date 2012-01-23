@@ -1,0 +1,65 @@
+A Python script to import local playlists to Google Music.
+Relies on my Google Music api: https://github.com/simon-weber/Unofficial-Google-Music-API
+
+Songs are matched by metadata, not file hash. So, this is most useful for people who keep their music library organized.
+
+This is a work in progress and has only been tested on my library/playlists. That said, my music matched perfectly. Here's a quick FAQ:
+
+
+How do I use it?
+
+    Get the source and the api. There's no ui right now; to set it up you'll need to modify some code at the top of main().
+
+    First, define the format of your playlists by modifying the regular expression md_pattern on line 63. You want this regex to match only song lines, and capture the metadata you want to match with. See my example in the code for guidance.
+
+    Next, declare what kind of metadata you're capturing by modifying md_cap_types. You can find all the choices in protocol_info in the api repo.
+
+    Lastly, declare the priority of the metadata when searching. More information on this below.
+
+    Now you're ready to go! Run the file and pass in the filename of a playlist (or something similar that has your song metadata). It'll ask you to log in to Google Music (use your full email). Then it'll pull down your entire library and try to make matches. You might be asked to break ties now. 
+    
+    After matching is done, you'll have the option to review matches before making a playlist. If you have a big playlist, when prompted, press f to print the log to a file; otherwise the terminal should be fine. The log has the following format for each attempted match:
+
+    alert query
+    	  matches
+
+    The alert is intended to be an easily greppable status indicator. == is one match, !! is no match, and ?? is multiple. The query is what was pulled from the playlist to search with, and the matches are songs from your GM library.
+
+    If you're happy, press y to make a new playlist. You should see it in Google Music after refreshing.
+
+
+How are matches made?
+
+    The metadata you pick will filter the library one at a time. This is intended to allow for some mismatching metadata, so prioritize the metadata you think will match and narrow the search most. Here's an example, searching for 'The Car Song' by 'The Cat Empire' on 'Live on Earth':
+
+    	songs with title == 'The Car Song':
+	      The Car Song - The Cat Empire - Two Shoes
+	      The Car Song - The Cat Empire - Live at The Metro
+	      The Car Song - The Cat Empire - Live on Earth
+
+	of those results, songs with artist == 'The Cat Empire': 
+	      (no change)
+
+        of those results, songs with album == 'Live on Earth':
+	      The Car Song - The Cat Empire - Live on Earth
+
+
+    If the last step hadn't produced a single result, a tie breaker would run. By default, it will ask you to pick the song that matches. I've only implemented the manual tiebreaker and one that does nothing and returns many matches. I imagine an edit-distance tiebreaker would be useful.
+
+
+How are matches really made?
+
+    Since even my metadata doesn't match all the time, it's a bit of a heuristic process. Long story short, if you keep the defaults, searches will retry insensitive to capitalization, and then with all punctuation (and non-english characters) turned into wildcards (.*). This matched my songs perfectly. If you don't want to automatically fall back to other kinds of searches, change the call to matcher.match() in main().
+
+
+What do I do if my songs aren't matching?
+
+     I can't test against any playlists and libraries except my own, so it's tough to account for this. I tried to make the matching process flexible, though. Look in gm_tools at SongMatcher; SearchModifiers and tie breakers can control just about every part of the search. Be sure to change the call to matcher.match() if you want to use a custom search style.
+
+     If things still aren't working, feel free to give me a shout on g+ or via email. Bug reports and contributions welcome!
+
+
+
+
+Copyright (c) 2012 Simon Weber
+Licensed under the GPLv3: http://www.gnu.org/licenses/gpl.txt
