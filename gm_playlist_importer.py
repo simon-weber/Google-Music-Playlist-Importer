@@ -1,16 +1,16 @@
-#!/usr/bin/env python
+#!/home/simon/programming/python/Google-Music-Playlist-Importer/test/bin/python
 
 """Python script to import local playlists to Google Music."""
 
-import gm_interface
-import gm_tools
 
 import re
 import sys
 import codecs
-import chardet
-
 from getpass import getpass
+
+import chardet
+import gmusicapi.gmtools.tools as gm_tools
+from gmusicapi.api import Api
 
 
 def init(max_attempts=3):
@@ -20,7 +20,7 @@ def init(max_attempts=3):
     :param max_attempts:
     """
 
-    api = gm_interface.Api()
+    api = Api()
     
     logged_in = False
     attempts = 0
@@ -90,7 +90,7 @@ def main():
         sys.exit(0)
     
     print "Loading library from Google Music..."
-    library = api.load_library()
+    library = api.get_all_songs()
 
     print "Matching songs..."
 
@@ -113,12 +113,12 @@ def main():
     go = raw_input("Create playlist from these matches? (y/n): ")
     if go == "y":
         name = raw_input("playlist name: ")
-        p_id = api.addplaylist(name)['id']
+        p_id = api.create_playlist(name)['id']
 
         print "Made playlist", name
 
         
-        res = api.addtoplaylist(p_id, 
+        res = api.add_songs_to_playlist(p_id, 
                                 map(gm_tools.filter_song_md, matched_songs))
         print "Added songs."
 
