@@ -60,7 +60,7 @@ def main():
     #My example matches against a playlist file with lines like:
     # /home/simon/music/library/The Cat Empire/Live on Earth/The Car Song.mp3
     #Make sure it won't match lines that don't contain song info!
-    md_pattern = r"^/ALBUMS/(.*)/(.*)/(.*)$"
+    md_pattern = r"^/home/simon/music/library/(.*)/(.*)/(.*)\..*$"
 
     #Identify what metadata each capture represents.
     #These need to be valid fields in the GM json - see protocol_info in the api repo.
