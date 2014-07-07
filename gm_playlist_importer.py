@@ -1,4 +1,4 @@
-#!/home/simon/programming/python/Google-Music-Playlist-Importer/test/bin/python
+#!/usr/bin/env python
 
 """Python script to import local playlists to Google Music."""
 
@@ -10,7 +10,7 @@ from getpass import getpass
 
 import chardet
 import gmusicapi.gmtools.tools as gm_tools
-from gmusicapi.api import Api
+from gmusicapi import Mobileclient
 
 
 def init(max_attempts=3):
@@ -20,8 +20,8 @@ def init(max_attempts=3):
     :param max_attempts:
     """
 
-    api = Api()
-    
+    api = Mobileclient()
+
     logged_in = False
     attempts = 0
 
@@ -60,7 +60,7 @@ def main():
     #My example matches against a playlist file with lines like:
     # /home/simon/music/library/The Cat Empire/Live on Earth/The Car Song.mp3
     #Make sure it won't match lines that don't contain song info!
-    md_pattern = r"^/home/simon/music/library/(.*)/(.*)/(.*)\..*$"
+    md_pattern = r"^/ALBUMS/(.*)/(.*)/(.*)$"
 
     #Identify what metadata each capture represents.
     #These need to be valid fields in the GM json - see protocol_info in the api repo.
@@ -68,7 +68,7 @@ def main():
 
     #The lower-better priority of the capture types above.
     #In this example, I order title first, then artist, then album.
-    md_cap_pr = (2,3,1)
+    md_cap_pr = (2, 3, 1)
 
 
     #Build queries from the playlist.
@@ -107,13 +107,13 @@ def main():
         with open(res, mode='w') as f:
             f.write(matcher.build_log())
         print "File written."
-        
+
 
 
     go = raw_input("Create playlist from these matches? (y/n): ")
     if go == "y":
         name = raw_input("playlist name: ")
-        p_id = api.create_playlist(name)['id']
+        p_id = api.create_playlist(name)
 
         print "Made playlist", name
 
